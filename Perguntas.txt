@@ -1,0 +1,148 @@
+tcpdump/wireshark/tshark (para análise de tráfego)
+tcpflow (para separação em fluxos, contagem de sessão e análise de conteúdo/payload)
+whois (para obter informações de um domínio)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1. Quais endereços IP/hosts estão envolvidos? (1pt)
+$ tcpdump -nnvvvv -r attack-trace.pcap
+
+honeypot: 192.150.11.111
+atacante: 98.114.205.102
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+2. O que você consegue descobrir sobre a máquina atacante (ex.: onde ela está localizada)? (1pt)
+$ whois 98.114.205.102
+
+NetRange:       98.108.0.0 - 98.119.255.255
+CIDR:           98.108.0.0/14, 98.112.0.0/13
+NetName:        VIS-BLOCK
+NetHandle:      NET-98-108-0-0-1
+Parent:         NET98 (NET-98-0-0-0-0)
+NetType:        Direct Allocation
+OriginAS:       
+Organization:   Verizon Business (MCICS)
+RegDate:        2008-04-02
+Updated:        2022-05-31
+Ref:            https://rdap.arin.net/registry/ip/98.108.0.0
+
+OrgName:        Verizon Business
+OrgId:          MCICS
+Address:        22001 Loudoun County Pkwy
+City:           Ashburn
+StateProv:      VA
+PostalCode:     20147
+Country:        US
+RegDate:        2006-05-30
+Updated:        2022-10-11
+Ref:            https://rdap.arin.net/registry/entity/MCICS
+
+OrgTechHandle: JEYAK-ARIN
+OrgTechName:   Jeyakumar, Jebaraj 
+OrgTechPhone:  +1-919-378-7285 
+OrgTechEmail:  jebaraj.kennet@verizon.com
+OrgTechRef:    https://rdap.arin.net/registry/entity/JEYAK-ARIN
+
+OrgDNSHandle: VZDNS1-ARIN
+OrgDNSName:   VZ-DNSADMIN
+OrgDNSPhone:  +1-800-900-0241 
+OrgDNSEmail:  dnsadmin@verizon.com
+OrgDNSRef:    https://rdap.arin.net/registry/entity/VZDNS1-ARIN
+
+OrgRoutingHandle: JEYAK-ARIN
+OrgRoutingName:   Jeyakumar, Jebaraj 
+OrgRoutingPhone:  +1-919-378-7285 
+OrgRoutingEmail:  jebaraj.kennet@verizon.com
+OrgRoutingRef:    https://rdap.arin.net/registry/entity/JEYAK-ARIN
+
+OrgTechHandle: SWIPP-ARIN
+OrgTechName:   swipper
+OrgTechPhone:  +1-800-900-0241 
+OrgTechEmail:  swipper@verizonbusiness.com
+OrgTechRef:    https://rdap.arin.net/registry/entity/SWIPP-ARIN
+
+OrgDNSHandle: KBR27-ARIN
+OrgDNSName:   Reeb, Ken B.
+OrgDNSPhone:  +1-800-900-0241 
+OrgDNSEmail:  Kenneth.Reeb@verizonwireless.com
+OrgDNSRef:    https://rdap.arin.net/registry/entity/KBR27-ARIN
+
+OrgAbuseHandle: ABUSE3-ARIN
+OrgAbuseName:   abuse
+OrgAbusePhone:  +1-800-900-0241 
+OrgAbuseEmail:  abuse-mail@verizonbusiness.com
+OrgAbuseRef:    https://rdap.arin.net/registry/entity/ABUSE3-ARIN
+
+OrgAbuseHandle: ABUSE5603-ARIN
+OrgAbuseName:   Abuse
+OrgAbusePhone:  +1-800-900-0241 
+OrgAbuseEmail:  abuse@verizon.net
+OrgAbuseRef:    https://rdap.arin.net/registry/entity/ABUSE5603-ARIN
+
+OrgTechHandle: SWIPP9-ARIN
+OrgTechName:   SWIPPER
+OrgTechPhone:  +1-800-900-0241 
+OrgTechEmail:  stephen.r.middleton@verizon.com
+OrgTechRef:    https://rdap.arin.net/registry/entity/SWIPP9-ARIN
+
+RAbuseHandle: ABUSE5603-ARIN
+RAbuseName:   Abuse
+RAbusePhone:  +1-800-900-0241 
+RAbuseEmail:  abuse@verizon.net
+RAbuseRef:    https://rdap.arin.net/registry/entity/ABUSE5603-ARIN
+
+Pesquisando o IP do atacante em sites de busca de IP dá pra descobrir a localização do lugar:
+
+Local: Estados Unidos da América, Nova Jersei, Mount Laurel, coordenadas (39.949185, -74.900488). 
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+3. Quantas *sessões* TCP o arquivo possui? (1pt)
+$ tcpdump -r attack-trace.pcap 'tcp[tcpflags] & (tcp-syn|tcp-ack) == tcp-syn'
+
+São 5 sessões.
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+4. Quanto tempo o ataque levou? (1pt)
+$ tcpdump -r attack-trace.pcap -nn -tttt 'tcp' | awk -F' ' '{print $1, $2}' | awk -F'.' '{print $1}' | uniq -c
+
+Pacotes | Horários
+15      | 2009-04-20 00:28:28
+12      | 2009-04-20 00:28:29
+13      | 2009-04-20 00:28:30
+ 3      | 2009-04-20 00:28:31
+ 2      | 2009-04-20 00:28:32
+15      | 2009-04-20 00:28:33
+35      | 2009-04-20 00:28:34
+29      | 2009-04-20 00:28:35
+25      | 2009-04-20 00:28:36
+25      | 2009-04-20 00:28:37
+26      | 2009-04-20 00:28:38
+23      | 2009-04-20 00:28:39
+25      | 2009-04-20 00:28:40
+23      | 2009-04-20 00:28:41
+30      | 2009-04-20 00:28:42
+25      | 2009-04-20 00:28:43
+22      | 2009-04-20 00:28:44
+
+Total: 348 pacotes em 16 segundos.
+
+Cerca de 16 segundos.
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+5. Qual sistema operacional foi alvo do ataque? Qual o serviço atacado? Qual a vulnerabilidade explorada? (3pts)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+6. Esboce graficamente uma visão geral das ações realizadas pelo atacante (considere a topologia de rede, os passos do ataque, os resultados). (3pts)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+7. Que vulnerabilidade específica foi explorada (CVE, propriedades de segurança violadas, como ela ocorre, etc.)? (1pt)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+8. O que a shellcode faz? Liste a shellcode (código). (4pts)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+9. Você acha que um honeypot foi utilizado para se passar por vítima vulnerável? Justifique. (3pts)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+10. Houve código malicioso envolvido? Se sim, qual o nome/rótulo do malware? (1pt)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+11. Você acha que o ataque foi manual ou lançado de maneira automática? Justifique sua resposta. (1pt)
+
